@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+    DIRTY="-dirty"
+fi
+
+BRANCH="$(git symbolic-ref --short -q HEAD)"
+SUBTAG="$(git describe --always --tag)"
+
+
+if [[ -z "$DIRTY" ]]; then
+    VERSION="${BRANCH}_${SUBTAG}"
+else
+    VERSION="${BRANCH}_${SUBTAG}${DIRTY}"
+fi
+
+if [ -z "$ARCH" ]; then
+    ARCH=amd64
+fi

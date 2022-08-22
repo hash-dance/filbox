@@ -1,0 +1,56 @@
+---
+kind: pipeline
+name: ci
+
+
+workspace:
+  base: /opt
+  path: gopj/filbox-backend
+
+steps:
+
+  # 测试
+  - name: golangci-lint
+    image: golangci/golangci-lint:v1.20.1
+    commands:
+      - ls
+      - pwd
+      - golangci-lint run
+    when:
+      branch:
+        - master
+      event:
+        - push
+
+  - name: build
+    image: golang:1.12.4
+    commands:
+      - go build -o server -mod=vendor main.go
+    when:
+      branch:
+        - master
+      event:
+        - push
+
+#  # publish
+#  - name: docker-publish
+#    image: plugins/docker
+#    settings:
+#      context: package/
+#      dockerfile: package/Dockerfile
+#      username:
+#        from_secret: docker_username
+#      password:
+#        from_secret: docker_password
+#      repo: harbor.raginghot.com.cn/raging/portal
+#      tag: "${DRONE_COMMIT_BRANCH}-${DRONE_COMMIT_SHA}"
+#      registry: harbor.raginghot.com.cn
+#    when:
+#      branch:
+#        - master
+#      event:
+#        - push
+volumes:
+  - name: docker
+    host:
+      path: /var/run/docker.sock
